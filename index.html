@@ -823,10 +823,6 @@
             const angleDiff = game.player.targetTurretAngle - game.player.turretAngle;
             game.player.turretAngle += angleDiff * 0.35;
 
-            // Store last position for motion trails
-            game.player.lastX = game.player.x - game.player.vx;
-            game.player.lastY = game.player.y - game.player.vy;
-
             // Update screen shake
             game.screenShake *= 0.85;
 
