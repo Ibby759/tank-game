@@ -127,6 +127,7 @@
             border: 2px solid lime;
             font-size: 14px;
             max-width: 300px;
+            display: none;
         }
 
         .game-over {
@@ -274,11 +275,11 @@
                     location.reload();
                 }
             }
-            if (e.key.toLowerCase() === 'e') mouseDown = true;
+            if (e.key === ' ') mouseDown = true;
         });
         document.addEventListener('keyup', e => {
             keys[e.key] = false;
-            if (e.key.toLowerCase() === 'e') mouseDown = false;
+            if (e.key === ' ') mouseDown = false;
         });
 
         let mouseX = canvas.width / 2;
