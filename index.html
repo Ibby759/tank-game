@@ -269,15 +269,18 @@
         let mouseDown = false;
         let shootDelay = 0;
         let reloadTimer = 0;
+        let reloadCooldown = 0;
         const RELOAD_TIME = 180; // 3 seconds at 60 FPS
+        const RELOAD_COOLDOWN = 600; // 10 seconds at 60 FPS
 
         // Input
         document.addEventListener('keydown', e => {
             keys[e.key] = true;
             if (e.key.toLowerCase() === 'r') {
                 if (game.player.running) {
-                    if (reloadTimer <= 0) {
+                    if (reloadTimer <= 0 && reloadCooldown <= 0) {
                         reloadTimer = RELOAD_TIME; // Start 3-second reload
+                        reloadCooldown = RELOAD_COOLDOWN; // Start 10-second cooldown
                     }
                 } else {
                     location.reload();
@@ -789,9 +792,12 @@
 
             shootDelay--;
 
-            // Update reload timer
+            // Update reload timer and cooldown
             if (reloadTimer > 0) {
                 reloadTimer--;
+            }
+            if (reloadCooldown > 0) {
+                reloadCooldown--;
             }
             if (reloadTimer <= 0 && reloadTimer !== -1) {
                 if (game.player.ammo < game.player.maxAmmo) {
@@ -803,8 +809,13 @@
 
             // Player movement with velocity
             const accel = 0.4;
-            const friction = 0.78;
+            const friction = 0.82;
             let moveX = 0, moveY = 0;
+
+            const isMoving = keys['ArrowUp'] || keys['w'] || keys['W'] ||
+                           keys['ArrowDown'] || keys['s'] || keys['S'] ||
+                           keys['ArrowLeft'] || keys['a'] || keys['A'] ||
+                           keys['ArrowRight'] || keys['d'] || keys['D'];
 
             if (keys['ArrowUp'] || keys['w'] || keys['W']) moveY -= accel;
             if (keys['ArrowDown'] || keys['s'] || keys['S']) moveY += accel;
@@ -813,12 +824,15 @@
 
             game.player.vx += moveX;
             game.player.vy += moveY;
-            game.player.vx *= friction;
-            game.player.vy *= friction;
 
-            // Stop movement when velocity is very small
-            if (Math.abs(game.player.vx) < 0.05) game.player.vx = 0;
-            if (Math.abs(game.player.vy) < 0.05) game.player.vy = 0;
+            // If no keys pressed, stop completely
+            if (!isMoving) {
+                game.player.vx = 0;
+                game.player.vy = 0;
+            } else {
+                game.player.vx *= friction;
+                game.player.vy *= friction;
+            }
 
             game.player.x += game.player.vx;
             game.player.y += game.player.vy;
@@ -966,6 +980,10 @@
                 const reloadSeconds = (reloadTimer / 60).toFixed(1);
                 document.getElementById('reloadTimer').textContent = reloadSeconds + 's';
                 document.getElementById('reloadTimer').style.color = '#ff6666';
+            } else if (reloadCooldown > 0) {
+                const cooldownSeconds = (reloadCooldown / 60).toFixed(1);
+                document.getElementById('reloadTimer').textContent = cooldownSeconds + 's';
+                document.getElementById('reloadTimer').style.color = '#ffaa00';
             } else {
                 document.getElementById('reloadTimer').textContent = 'READY';
                 document.getElementById('reloadTimer').style.color = '#ffff00';
