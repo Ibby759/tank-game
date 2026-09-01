@@ -816,6 +816,10 @@
             game.player.vx *= friction;
             game.player.vy *= friction;
 
+            // Stop movement when velocity is very small
+            if (Math.abs(game.player.vx) < 0.05) game.player.vx = 0;
+            if (Math.abs(game.player.vy) < 0.05) game.player.vy = 0;
+
             game.player.x += game.player.vx;
             game.player.y += game.player.vy;
 
