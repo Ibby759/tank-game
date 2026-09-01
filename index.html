@@ -276,7 +276,7 @@
             keys[e.key] = true;
             if (e.key.toLowerCase() === 'r') {
                 if (game.player.running) {
-                    if (reloadTimer === 0) {
+                    if (reloadTimer <= 0) {
                         reloadTimer = RELOAD_TIME; // Start 3-second reload
                     }
                 } else {
@@ -792,15 +792,18 @@
             // Update reload timer
             if (reloadTimer > 0) {
                 reloadTimer--;
-                if (reloadTimer === 0) {
-                    game.player.ammo = game.player.maxAmmo; // Reload complete!
+            }
+            if (reloadTimer <= 0 && reloadTimer !== -1) {
+                if (game.player.ammo < game.player.maxAmmo) {
+                    game.player.ammo = game.player.maxAmmo;
                     document.getElementById('ammo').textContent = game.player.ammo;
                 }
+                reloadTimer = -1; // Mark as complete
             }
 
             // Player movement with velocity
             const accel = 0.4;
-            const friction = 0.85;
+            const friction = 0.78;
             let moveX = 0, moveY = 0;
 
             if (keys['ArrowUp'] || keys['w'] || keys['W']) moveY -= accel;
