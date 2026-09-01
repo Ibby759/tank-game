@@ -197,6 +197,10 @@
                     <div class="label">AMMO</div>
                     <div id="ammo">30</div>
                 </div>
+                <div class="stat">
+                    <div class="label">RELOAD</div>
+                    <div id="reloadTimer" style="color: #ffff00;">READY</div>
+                </div>
             </div>
 
             <div class="instruction">
@@ -264,13 +268,17 @@
         const keys = {};
         let mouseDown = false;
         let shootDelay = 0;
+        let reloadTimer = 0;
+        const RELOAD_TIME = 180; // 3 seconds at 60 FPS
 
         // Input
         document.addEventListener('keydown', e => {
             keys[e.key] = true;
             if (e.key.toLowerCase() === 'r') {
                 if (game.player.running) {
-                    game.player.ammo = game.player.maxAmmo; // Reload with unlimited ammo
+                    if (reloadTimer === 0) {
+                        reloadTimer = RELOAD_TIME; // Start 3-second reload
+                    }
                 } else {
                     location.reload();
                 }
@@ -781,6 +789,15 @@
 
             shootDelay--;
 
+            // Update reload timer
+            if (reloadTimer > 0) {
+                reloadTimer--;
+                if (reloadTimer === 0) {
+                    game.player.ammo = game.player.maxAmmo; // Reload complete!
+                    document.getElementById('ammo').textContent = game.player.ammo;
+                }
+            }
+
             // Player movement with velocity
             const accel = 0.4;
             const friction = 0.85;
@@ -936,6 +953,16 @@
 
             // Update UI
             document.getElementById('health').textContent = Math.round(game.player.health) + ' / ' + game.player.maxHealth;
+
+            // Update reload timer display
+            if (reloadTimer > 0) {
+                const reloadSeconds = (reloadTimer / 60).toFixed(1);
+                document.getElementById('reloadTimer').textContent = reloadSeconds + 's';
+                document.getElementById('reloadTimer').style.color = '#ff6666';
+            } else {
+                document.getElementById('reloadTimer').textContent = 'READY';
+                document.getElementById('reloadTimer').style.color = '#ffff00';
+            }
         }
 
         function draw() {
