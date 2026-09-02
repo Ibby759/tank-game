@@ -996,6 +996,13 @@
                 canvas.width = window.innerWidth;
                 canvas.height = window.innerHeight;
             }, 100);
+
+            // Hide fullscreen button when in fullscreen
+            if (document.fullscreenElement) {
+                fullscreenBtnGame.style.display = 'none';
+            } else {
+                fullscreenBtnGame.style.display = 'flex';
+            }
         });
 
         // Also handle webkit fullscreen change
@@ -1004,6 +1011,13 @@
                 canvas.width = window.innerWidth;
                 canvas.height = window.innerHeight;
             }, 100);
+
+            // Hide fullscreen button when in fullscreen
+            if (document.webkitFullscreenElement) {
+                fullscreenBtnGame.style.display = 'none';
+            } else {
+                fullscreenBtnGame.style.display = 'flex';
+            }
         });
 
         // Difficulty settings
