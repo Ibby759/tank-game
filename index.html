@@ -272,7 +272,7 @@
 
         // Input
         document.addEventListener('keydown', e => {
-            keys[e.key] = true;
+            keys[e.key.toLowerCase()] = true;
             if (e.key.toLowerCase() === 'r') {
                 if (game.player.running) {
                     if (reloadTimer <= 0 && reloadCooldown <= 0) {
@@ -286,7 +286,7 @@
             if (e.key === ' ') mouseDown = true;
         });
         document.addEventListener('keyup', e => {
-            keys[e.key] = false;
+            keys[e.key.toLowerCase()] = false;
             if (e.key === ' ') mouseDown = false;
         });
 
@@ -807,10 +807,10 @@
             // Player movement - DIRECT (no drift)
             const moveSpeed = 2.5;
 
-            if (keys['ArrowUp'] || keys['w'] || keys['W']) game.player.y -= moveSpeed;
-            if (keys['ArrowDown'] || keys['s'] || keys['S']) game.player.y += moveSpeed;
-            if (keys['ArrowLeft'] || keys['a'] || keys['A']) game.player.x -= moveSpeed;
-            if (keys['ArrowRight'] || keys['d'] || keys['D']) game.player.x += moveSpeed;
+            if (keys['arrowup'] || keys['w']) game.player.y -= moveSpeed;
+            if (keys['arrowdown'] || keys['s']) game.player.y += moveSpeed;
+            if (keys['arrowleft'] || keys['a']) game.player.x -= moveSpeed;
+            if (keys['arrowright'] || keys['d']) game.player.x += moveSpeed;
 
             // Tank angle
             const cx = canvas.width / 2;
