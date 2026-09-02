@@ -10,8 +10,56 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Orbitron', Arial, monospace; background: #000; overflow: hidden; height: 100vh; }
 
-        #game { width: 100vw; height: 100vh; position: relative; }
-        canvas { display: block; width: 100%; height: 100%; }
+        #game {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Scanline effect overlay */
+        #game::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                repeating-linear-gradient(
+                    0deg,
+                    rgba(0, 0, 0, 0.15),
+                    rgba(0, 0, 0, 0.15) 1px,
+                    transparent 1px,
+                    transparent 2px
+                );
+            pointer-events: none;
+            z-index: 10;
+            animation: scanlines 8s linear infinite;
+        }
+
+        @keyframes scanlines {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(10px); }
+        }
+
+        /* Chromatic aberration effect */
+        #game::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, transparent 0%, rgba(0, 0, 0, 0.05) 100%);
+            pointer-events: none;
+            z-index: 5;
+        }
 
         .ui { position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; }
 
@@ -244,7 +292,10 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(135deg, #0a0a15 0%, #1a1a3e 25%, #0f1a2e 50%, #1a1a3e 75%, #0a0a15 100%);
+            background:
+                linear-gradient(135deg, #000000 0%, #0a0520 20%, #150a3e 40%, #0a0520 60%, #000000 80%, #0a0520 100%),
+                radial-gradient(ellipse at 20% 50%, rgba(0, 255, 200, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 50%, rgba(255, 0, 100, 0.1) 0%, transparent 50%);
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -254,61 +305,109 @@
             overflow: hidden;
         }
 
-        /* Animated background stars */
+        /* Animated background stars - MUCH MORE */
         .home-screen::before {
             content: '';
             position: absolute;
-            width: 100%;
-            height: 100%;
+            width: 200%;
+            height: 200%;
             background-image:
-                radial-gradient(2px 2px at 20% 30%, #eee, rgba(0,0,0,0)),
-                radial-gradient(2px 2px at 60% 70%, #fff, rgba(0,0,0,0)),
-                radial-gradient(1px 1px at 50% 50%, #ddd, rgba(0,0,0,0)),
-                radial-gradient(1px 1px at 80% 10%, #fff, rgba(0,0,0,0)),
-                radial-gradient(2px 2px at 90% 60%, #eee, rgba(0,0,0,0));
+                radial-gradient(1px 1px at 10% 20%, #fff, rgba(0,0,0,0)),
+                radial-gradient(1.5px 1.5px at 20% 30%, #eee, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 30% 15%, #ddd, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 40% 40%, #fff, rgba(0,0,0,0)),
+                radial-gradient(1.5px 1.5px at 50% 10%, #eee, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 60% 30%, #fff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 70% 50%, #ddd, rgba(0,0,0,0)),
+                radial-gradient(1.5px 1.5px at 80% 20%, #eee, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 90% 60%, #fff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 15% 70%, #ddd, rgba(0,0,0,0)),
+                radial-gradient(1.5px 1.5px at 35% 85%, #eee, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 55% 75%, #fff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 75% 85%, #ddd, rgba(0,0,0,0));
             background-repeat: repeat;
-            background-size: 200% 200%;
-            animation: twinkle 3s infinite;
+            background-size: 250% 250%;
+            animation: twinkle 5s infinite, drift 40s linear infinite;
             pointer-events: none;
         }
 
         @keyframes twinkle {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 1; }
+        }
+
+        @keyframes drift {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(-50%, -50%); }
+        }
+
+        /* Extra animated background layer */
+        .home-screen::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(circle at 20% 50%, rgba(0, 255, 150, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 80% 30%, rgba(255, 100, 200, 0.15) 0%, transparent 40%);
+            animation: pulse-bg 6s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes pulse-bg {
             0%, 100% { opacity: 0.3; }
-            50% { opacity: 0.8; }
+            50% { opacity: 0.7; }
         }
 
         .home-screen h1 {
-            font-size: 96px;
+            font-size: 120px;
             font-family: 'Audiowide', sans-serif;
             color: #00ff88;
             text-shadow:
-                0 0 20px #00ff88,
-                0 0 40px #00ff44,
-                0 0 60px #00cc88,
-                0 0 80px #00ff88;
+                0 0 10px #00ff88,
+                0 0 20px #00ffaa,
+                0 0 30px #00ff88,
+                0 0 50px #00ff44,
+                0 0 80px #00cc88,
+                0 0 120px #00ff88,
+                0 0 200px rgba(0, 255, 136, 0.5);
             margin-bottom: 10px;
             font-weight: 900;
-            letter-spacing: 4px;
-            animation: glow-pulse 2s ease-in-out infinite;
+            letter-spacing: 6px;
+            animation: glow-pulse 2s ease-in-out infinite, float-up 3s ease-in-out infinite;
             z-index: 1;
             position: relative;
+            filter: brightness(1.2);
         }
 
         @keyframes glow-pulse {
             0%, 100% {
                 text-shadow:
-                    0 0 20px #00ff88,
-                    0 0 40px #00ff44,
-                    0 0 60px #00cc88,
-                    0 0 80px #00ff88;
+                    0 0 10px #00ff88,
+                    0 0 20px #00ffaa,
+                    0 0 30px #00ff88,
+                    0 0 50px #00ff44,
+                    0 0 80px #00cc88,
+                    0 0 120px #00ff88,
+                    0 0 200px rgba(0, 255, 136, 0.5);
+                filter: brightness(1.2);
             }
             50% {
                 text-shadow:
-                    0 0 30px #00ff88,
-                    0 0 60px #00ff44,
-                    0 0 90px #00cc88,
-                    0 0 120px #00ff88;
+                    0 0 20px #00ff88,
+                    0 0 40px #00ffaa,
+                    0 0 60px #00ff88,
+                    0 0 100px #00ff44,
+                    0 0 150px #00cc88,
+                    0 0 200px #00ff88,
+                    0 0 300px rgba(0, 255, 136, 0.8);
+                filter: brightness(1.4);
             }
+        }
+
+        @keyframes float-up {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
         }
 
         .home-screen p {
@@ -340,20 +439,25 @@
         }
 
         .difficulty-btn {
-            padding: 30px 60px;
-            font-size: 28px;
+            padding: 35px 70px;
+            font-size: 32px;
             font-weight: 900;
-            border: 4px solid;
-            background: rgba(0, 0, 0, 0.8);
+            border: 5px solid;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.95), rgba(0, 0, 0, 0.7));
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
             text-transform: uppercase;
-            letter-spacing: 3px;
-            box-shadow: 0 0 20px, inset 0 0 20px rgba(255,255,255,0.1);
+            letter-spacing: 4px;
+            box-shadow:
+                0 0 30px,
+                0 0 60px,
+                inset 0 0 30px rgba(255,255,255,0.15);
             pointer-events: all;
-            border-radius: 8px;
+            border-radius: 12px;
             position: relative;
             overflow: hidden;
+            font-family: 'Orbitron', monospace;
+            transform-style: preserve-3d;
         }
 
         .difficulty-btn::before {
@@ -363,51 +467,80 @@
             left: -50%;
             width: 200%;
             height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
-            animation: shine 3s infinite;
+            background: radial-gradient(circle, rgba(255,255,255,0.5) 0%, transparent 70%);
+            animation: shine-intense 2.5s infinite;
+            z-index: 1;
         }
 
-        @keyframes shine {
+        @keyframes shine-intense {
             0% { transform: translate(-100%, -100%) rotate(0deg); }
             100% { transform: translate(100%, 100%) rotate(360deg); }
         }
 
         .difficulty-btn:hover {
-            transform: scale(1.15) translateY(-5px);
-            filter: brightness(1.3);
+            transform: scale(1.18) translateY(-8px) perspective(800px);
+            filter: brightness(1.5) drop-shadow(0 0 20px currentColor);
+        }
+
+        .difficulty-btn:active {
+            transform: scale(0.98) translateY(-2px);
         }
 
         .difficulty-btn.easy {
             color: #00ff00;
             border-color: #00ff00;
-            box-shadow: 0 0 20px #00ff00, 0 0 40px #00aa00, inset 0 0 20px rgba(0,255,0,0.1);
+            box-shadow:
+                0 0 20px #00ff00,
+                0 0 40px #00ff44,
+                0 0 60px #00aa00,
+                inset 0 0 30px rgba(0,255,0,0.15);
         }
 
         .difficulty-btn.easy:hover {
-            background: rgba(0, 255, 0, 0.25);
-            box-shadow: 0 0 40px #00ff00, 0 0 80px #00cc00, 0 0 120px #00ff00;
+            background: linear-gradient(135deg, rgba(0, 255, 0, 0.3), rgba(0, 200, 100, 0.2));
+            box-shadow:
+                0 0 40px #00ff00,
+                0 0 80px #00ff44,
+                0 0 120px #00cc00,
+                0 0 180px #00ff00;
         }
 
         .difficulty-btn.medium {
             color: #ffff00;
             border-color: #ffff00;
-            box-shadow: 0 0 20px #ffff00, 0 0 40px #ffaa00, inset 0 0 20px rgba(255,255,0,0.1);
+            box-shadow:
+                0 0 20px #ffff00,
+                0 0 40px #ffff44,
+                0 0 60px #ffaa00,
+                inset 0 0 30px rgba(255,255,0,0.15);
         }
 
         .difficulty-btn.medium:hover {
-            background: rgba(255, 255, 0, 0.25);
-            box-shadow: 0 0 40px #ffff00, 0 0 80px #ffcc00, 0 0 120px #ffff00;
+            background: linear-gradient(135deg, rgba(255, 255, 0, 0.3), rgba(255, 200, 0, 0.2));
+            box-shadow:
+                0 0 40px #ffff00,
+                0 0 80px #ffff44,
+                0 0 120px #ffcc00,
+                0 0 180px #ffff00;
         }
 
         .difficulty-btn.hard {
             color: #ff4444;
             border-color: #ff4444;
-            box-shadow: 0 0 20px #ff4444, 0 0 40px #dd0000, inset 0 0 20px rgba(255,68,68,0.1);
+            box-shadow:
+                0 0 20px #ff4444,
+                0 0 40px #ff0000,
+                0 0 60px #dd0000,
+                inset 0 0 30px rgba(255,68,68,0.15);
         }
 
         .difficulty-btn.hard:hover {
-            background: rgba(255, 68, 68, 0.25);
-            box-shadow: 0 0 40px #ff4444, 0 0 80px #ff0000, 0 0 120px #ff4444;
+            background: linear-gradient(135deg, rgba(255, 68, 68, 0.3), rgba(220, 0, 0, 0.2));
+            box-shadow:
+                0 0 40px #ff4444,
+                0 0 80px #ff0000,
+                0 0 120px #dd0000,
+                0 0 180px #ff4444;
         }
 
         /* DEATH SCREEN */
@@ -416,89 +549,142 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: linear-gradient(135deg, rgba(0, 0, 0, 0.97) 0%, rgba(40, 0, 0, 0.95) 100%);
-            border: 5px solid;
-            border-image: linear-gradient(135deg, #ff4444, #ff0000, #ff4444) 1;
-            padding: 70px 80px;
+            background:
+                linear-gradient(135deg, rgba(0, 0, 0, 0.98) 0%, rgba(60, 0, 0, 0.95) 50%, rgba(0, 0, 0, 0.98) 100%),
+                radial-gradient(ellipse at center, rgba(255, 0, 0, 0.1) 0%, transparent 80%);
+            border: 6px solid #ff4444;
+            padding: 80px 100px;
             text-align: center;
             display: none;
             z-index: 150;
             box-shadow:
                 0 0 50px rgba(255, 68, 68, 0.8),
-                0 0 100px rgba(255, 0, 0, 0.5),
-                inset 0 0 30px rgba(255, 68, 68, 0.2);
-            border-radius: 15px;
-            max-width: 600px;
-            animation: pulse-death 2s ease-in-out infinite;
+                0 0 100px rgba(255, 0, 0, 0.6),
+                0 0 150px rgba(255, 50, 50, 0.4),
+                inset 0 0 40px rgba(255, 68, 68, 0.3);
+            border-radius: 20px;
+            max-width: 650px;
+            animation: pulse-death 1.5s ease-in-out infinite;
+            backdrop-filter: blur(5px);
         }
 
         @keyframes pulse-death {
-            0%, 100% { transform: translate(-50%, -50%) scale(1); }
-            50% { transform: translate(-50%, -50%) scale(1.02); }
+            0%, 100% {
+                transform: translate(-50%, -50%) scale(1);
+                box-shadow:
+                    0 0 50px rgba(255, 68, 68, 0.8),
+                    0 0 100px rgba(255, 0, 0, 0.6),
+                    0 0 150px rgba(255, 50, 50, 0.4),
+                    inset 0 0 40px rgba(255, 68, 68, 0.3);
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.03);
+                box-shadow:
+                    0 0 70px rgba(255, 68, 68, 1),
+                    0 0 140px rgba(255, 0, 0, 0.8),
+                    0 0 200px rgba(255, 50, 50, 0.6),
+                    inset 0 0 50px rgba(255, 68, 68, 0.4);
+            }
         }
 
         .death-screen.show {
             display: block;
-            animation: shake-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            animation: shake-in 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), pulse-death 1.5s ease-in-out infinite 0.8s;
         }
 
         @keyframes shake-in {
-            0% { transform: translate(-50%, -50%) scale(0.5) rotate(-5deg); opacity: 0; }
-            50% { transform: translate(-50%, -50%) scale(1.05) rotate(2deg); }
-            100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
+            0% {
+                transform: translate(-50%, -50%) scale(0.3) rotate(-15deg);
+                opacity: 0;
+            }
+            50% {
+                transform: translate(calc(-50% + 10px), calc(-50% - 10px)) scale(1.1) rotate(3deg);
+                opacity: 0.8;
+            }
+            75% {
+                transform: translate(calc(-50% - 5px), calc(-50% + 5px)) scale(1.05) rotate(-2deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1) rotate(0deg);
+                opacity: 1;
+            }
         }
 
         .death-screen h1 {
-            font-size: 72px;
+            font-size: 90px;
             font-family: 'Audiowide', sans-serif;
             color: #ff4444;
             text-shadow:
-                0 0 20px #ff4444,
-                0 0 40px #ff0000,
-                0 0 60px #ff4444;
-            margin-bottom: 30px;
+                0 0 10px #ff4444,
+                0 0 20px #ff2222,
+                0 0 30px #ff0000,
+                0 0 50px #ff4444,
+                0 0 80px #ff0000,
+                0 0 120px rgba(255, 0, 0, 0.6);
+            margin-bottom: 35px;
             font-weight: 900;
-            letter-spacing: 4px;
-            animation: blood-pulse 1.5s ease-in-out infinite;
+            letter-spacing: 5px;
+            animation: blood-pulse 1.3s ease-in-out infinite;
+            filter: brightness(1.3);
         }
 
         @keyframes blood-pulse {
             0%, 100% {
                 text-shadow:
-                    0 0 20px #ff4444,
-                    0 0 40px #ff0000,
-                    0 0 60px #ff4444;
+                    0 0 10px #ff4444,
+                    0 0 20px #ff2222,
+                    0 0 30px #ff0000,
+                    0 0 50px #ff4444,
+                    0 0 80px #ff0000,
+                    0 0 120px rgba(255, 0, 0, 0.6);
+                filter: brightness(1.3);
             }
             50% {
                 text-shadow:
-                    0 0 30px #ff4444,
+                    0 0 20px #ff4444,
+                    0 0 40px #ff2222,
                     0 0 60px #ff0000,
-                    0 0 90px #ff4444;
+                    0 0 100px #ff4444,
+                    0 0 150px #ff0000,
+                    0 0 200px rgba(255, 0, 0, 0.8);
+                filter: brightness(1.6);
             }
         }
 
         .death-screen .kills-display {
-            font-size: 42px;
+            font-size: 50px;
             font-family: 'Orbitron', Arial;
             color: #00ff88;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             text-shadow:
-                0 0 20px #00ff88,
-                0 0 40px #00cc88;
-            font-weight: 700;
-            letter-spacing: 2px;
+                0 0 15px #00ff88,
+                0 0 30px #00ffaa,
+                0 0 50px #00cc88,
+                0 0 80px rgba(0, 255, 136, 0.5);
+            font-weight: 900;
+            letter-spacing: 3px;
+            animation: glow-in 1s ease-out;
+        }
+
+        @keyframes glow-in {
+            0% { opacity: 0; transform: scale(0.5); }
+            100% { opacity: 1; transform: scale(1); }
         }
 
         .death-screen .difficulty-display {
-            font-size: 26px;
+            font-size: 32px;
             font-family: 'Orbitron', Arial;
             color: #ffff00;
-            margin-bottom: 50px;
+            margin-bottom: 60px;
             text-shadow:
-                0 0 15px #ffff00,
-                0 0 30px #ffaa00;
-            font-weight: 700;
-            letter-spacing: 2px;
+                0 0 10px #ffff00,
+                0 0 20px #ffff44,
+                0 0 40px #ffaa00,
+                0 0 60px rgba(255, 255, 0, 0.5);
+            font-weight: 900;
+            letter-spacing: 3px;
+            animation: glow-in 1.2s ease-out;
         }
 
         .death-screen .button-group {
@@ -509,19 +695,22 @@
         }
 
         .death-btn {
-            padding: 25px 55px;
-            font-size: 24px;
+            padding: 32px 70px;
+            font-size: 28px;
             font-weight: 900;
             font-family: 'Orbitron', Arial;
-            border: 4px solid;
-            background: rgba(0, 0, 0, 0.85);
+            border: 5px solid;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.95), rgba(0, 0, 0, 0.8));
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
             text-transform: uppercase;
-            letter-spacing: 3px;
-            box-shadow: 0 0 20px, inset 0 0 20px rgba(255,255,255,0.1);
+            letter-spacing: 4px;
+            box-shadow:
+                0 0 30px,
+                0 0 60px,
+                inset 0 0 30px rgba(255,255,255,0.15);
             pointer-events: all;
-            border-radius: 8px;
+            border-radius: 12px;
             position: relative;
             overflow: hidden;
         }
@@ -533,35 +722,56 @@
             left: -50%;
             width: 200%;
             height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
-            animation: shine 3s infinite;
+            background: radial-gradient(circle, rgba(255,255,255,0.4) 0%, transparent 70%);
+            animation: shine-intense 2.5s infinite;
+            z-index: 1;
         }
 
         .death-btn:hover {
-            transform: scale(1.12) translateY(-3px);
-            filter: brightness(1.4);
+            transform: scale(1.16) translateY(-6px);
+            filter: brightness(1.5) drop-shadow(0 0 20px currentColor);
+        }
+
+        .death-btn:active {
+            transform: scale(0.98) translateY(-2px);
         }
 
         .death-btn.respawn {
             color: #00ff88;
             border-color: #00ff88;
-            box-shadow: 0 0 25px #00ff88, 0 0 50px #00cc88, inset 0 0 20px rgba(0,255,136,0.1);
+            box-shadow:
+                0 0 30px #00ff88,
+                0 0 60px #00ff44,
+                0 0 90px #00cc88,
+                inset 0 0 30px rgba(0,255,136,0.2);
         }
 
         .death-btn.respawn:hover {
-            background: rgba(0, 255, 136, 0.25);
-            box-shadow: 0 0 50px #00ff88, 0 0 100px #00cc88;
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.3), rgba(0, 200, 100, 0.2));
+            box-shadow:
+                0 0 50px #00ff88,
+                0 0 100px #00ff44,
+                0 0 150px #00cc88,
+                0 0 200px rgba(0, 255, 136, 0.4);
         }
 
         .death-btn.home {
             color: #ffff00;
             border-color: #ffff00;
-            box-shadow: 0 0 25px #ffff00, 0 0 50px #ffaa00, inset 0 0 20px rgba(255,255,0,0.1);
+            box-shadow:
+                0 0 30px #ffff00,
+                0 0 60px #ffff44,
+                0 0 90px #ffaa00,
+                inset 0 0 30px rgba(255,255,0,0.2);
         }
 
         .death-btn.home:hover {
-            background: rgba(255, 255, 0, 0.25);
-            box-shadow: 0 0 50px #ffff00, 0 0 100px #ffaa00;
+            background: linear-gradient(135deg, rgba(255, 255, 0, 0.3), rgba(255, 200, 0, 0.2));
+            box-shadow:
+                0 0 50px #ffff00,
+                0 0 100px #ffff44,
+                0 0 150px #ffaa00,
+                0 0 200px rgba(255, 255, 0, 0.4);
         }
     </style>
 </head>
