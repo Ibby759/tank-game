@@ -164,6 +164,175 @@
             opacity: 0.8;
         }
 
+        /* ACHIEVEMENTS PANEL */
+        .achievements-panel {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            width: 300px;
+            max-height: 400px;
+            background: rgba(0, 0, 0, 0.85);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 4px;
+            padding: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            overflow-y: auto;
+            z-index: 40;
+            display: none;
+        }
+
+        .achievements-panel.show {
+            display: block;
+        }
+
+        .achievements-title {
+            font-size: 16px;
+            color: #ffff00;
+            font-weight: 700;
+            margin-bottom: 12px;
+            letter-spacing: 1px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 0, 0.2);
+            padding-bottom: 8px;
+        }
+
+        .achievement-item {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 4px;
+            padding: 10px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.2s ease;
+        }
+
+        .achievement-item.unlocked {
+            border-color: rgba(0, 255, 136, 0.6);
+            background: rgba(0, 255, 136, 0.08);
+        }
+
+        .achievement-item.locked {
+            opacity: 0.6;
+        }
+
+        .achievement-icon {
+            font-size: 24px;
+            min-width: 30px;
+            text-align: center;
+        }
+
+        .achievement-info {
+            flex: 1;
+        }
+
+        .achievement-name {
+            font-size: 12px;
+            color: #00ff88;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .achievement-item.locked .achievement-name {
+            color: #888;
+        }
+
+        .achievement-desc {
+            font-size: 11px;
+            color: #88ff88;
+            margin-top: 2px;
+            opacity: 0.7;
+        }
+
+        .achievement-item.locked .achievement-desc {
+            color: #666;
+        }
+
+        .achievement-unlock-btn {
+            position: absolute;
+            top: 30px;
+            right: 250px;
+            width: 35px;
+            height: 35px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(255, 215, 0, 0.5);
+            border-radius: 4px;
+            color: #ffd700;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            z-index: 41;
+        }
+
+        .achievement-unlock-btn:hover {
+            background: rgba(0, 0, 0, 0.9);
+            border-color: #ffd700;
+            box-shadow: 0 0 12px rgba(255, 215, 0, 0.3);
+        }
+
+        /* ACHIEVEMENT NOTIFICATION */
+        .achievement-notification {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.95), rgba(50, 30, 0, 0.95));
+            border: 2px solid #ffd700;
+            border-radius: 8px;
+            padding: 20px 30px;
+            box-shadow:
+                0 0 20px rgba(255, 215, 0, 0.3),
+                0 8px 16px rgba(0, 0, 0, 0.5);
+            color: #ffd700;
+            font-family: 'Orbitron', monospace;
+            z-index: 500;
+            animation: achievement-slide 0.5s ease-out;
+            pointer-events: all;
+        }
+
+        @keyframes achievement-slide {
+            0% {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            100% {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .achievement-notification.hide {
+            animation: achievement-slide-out 0.5s ease-out forwards;
+        }
+
+        @keyframes achievement-slide-out {
+            0% {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+
+        .achievement-notif-title {
+            font-size: 18px;
+            font-weight: 900;
+            margin-bottom: 5px;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .achievement-notif-desc {
+            font-size: 14px;
+            color: #ffff00;
+            font-weight: 600;
+        }
+
         /* MINIMAP */
         .minimap {
             position: absolute;
@@ -541,6 +710,15 @@
                     <button class="difficulty-btn medium" id="mediumBtn">MEDIUM</button>
                     <button class="difficulty-btn hard" id="hardBtn">HARD</button>
                 </div>
+
+                <!-- Achievements Button -->
+                <button class="achievement-unlock-btn" id="achievementsBtn" title="View Achievements">🏆</button>
+
+                <!-- Achievements Panel -->
+                <div class="achievements-panel" id="achievementsPanel">
+                    <div class="achievements-title">🏆 ACHIEVEMENTS 🏆</div>
+                    <div id="achievementsList"></div>
+                </div>
             </div>
 
             <div class="crosshair"></div>
@@ -611,6 +789,117 @@
         window.addEventListener('resize', () => {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
+        });
+
+        // ACHIEVEMENTS SYSTEM
+        const achievements = {
+            easy: [
+                { id: 'easy_start', name: '🌱 First Battle', desc: 'Start Easy Mode', icon: '🎮', kills: 0, noDamage: false },
+                { id: 'easy_5kills', name: '🔥 Tank Hunter', desc: 'Get 5 kills in Easy', icon: '💥', kills: 5, noDamage: false },
+                { id: 'easy_perfect', name: '⭐ Perfect Defense', desc: 'Beat Easy without damage', icon: '🛡️', kills: 1, noDamage: true },
+                { id: 'easy_10kills', name: '💪 Destroyer', desc: 'Get 10 kills in Easy', icon: '⚡', kills: 10, noDamage: false },
+            ],
+            medium: [
+                { id: 'med_start', name: '🎯 Mid Challenge', desc: 'Start Medium Mode', icon: '🎮', kills: 0, noDamage: false },
+                { id: 'med_15kills', name: '🔥 Elite Hunter', desc: 'Get 15 kills in Medium', icon: '💥', kills: 15, noDamage: false },
+                { id: 'med_perfect', name: '⭐ Untouchable', desc: 'Beat Medium without damage', icon: '🛡️', kills: 1, noDamage: true },
+                { id: 'med_25kills', name: '👑 Legendary', desc: 'Get 25 kills in Medium', icon: '👑', kills: 25, noDamage: false },
+            ],
+            hard: [
+                { id: 'hard_start', name: '🌑 Nightmare Mode', desc: 'Start Hard Mode', icon: '🎮', kills: 0, noDamage: false },
+                { id: 'hard_20kills', name: '🔥 Godlike', desc: 'Get 20 kills in Hard', icon: '💥', kills: 20, noDamage: false },
+                { id: 'hard_perfect', name: '⭐ Untouchable Warrior', desc: 'Beat Hard without damage', icon: '🛡️', kills: 1, noDamage: true },
+                { id: 'hard_50kills', name: '👑 ULTIMATE LEGEND', desc: 'Get 50 kills in Hard!', icon: '🏆', kills: 50, noDamage: false },
+            ]
+        };
+
+        // Load achievements from localStorage
+        let unlockedAchievements = JSON.parse(localStorage.getItem('tankGameAchievements')) || {};
+
+        // Check and unlock achievement
+        function checkAchievement(difficulty, kills, noDamage) {
+            const diffAchievements = achievements[difficulty] || [];
+            let newUnlocks = [];
+
+            diffAchievements.forEach(ach => {
+                const achId = ach.id;
+                if (!unlockedAchievements[achId]) {
+                    let shouldUnlock = false;
+
+                    if (ach.id.includes('_start')) {
+                        shouldUnlock = true;
+                    } else if (noDamage && ach.noDamage && kills >= ach.kills) {
+                        shouldUnlock = true;
+                    } else if (!ach.noDamage && kills >= ach.kills) {
+                        shouldUnlock = true;
+                    }
+
+                    if (shouldUnlock) {
+                        unlockedAchievements[achId] = true;
+                        newUnlocks.push(ach);
+                        localStorage.setItem('tankGameAchievements', JSON.stringify(unlockedAchievements));
+                    }
+                }
+            });
+
+            return newUnlocks;
+        }
+
+        // Show achievement notification
+        function showAchievementNotification(achievement) {
+            const notif = document.createElement('div');
+            notif.className = 'achievement-notification';
+            notif.innerHTML = `
+                <div class="achievement-notif-title">${achievement.icon} ACHIEVEMENT UNLOCKED!</div>
+                <div class="achievement-notif-desc">${achievement.name}</div>
+            `;
+            document.body.appendChild(notif);
+
+            setTimeout(() => {
+                notif.classList.add('hide');
+                setTimeout(() => notif.remove(), 500);
+            }, 3000);
+        }
+
+        // Render achievements list
+        function renderAchievements() {
+            const list = document.getElementById('achievementsList');
+            list.innerHTML = '';
+
+            const allAchievements = [];
+            Object.values(achievements).forEach(arr => allAchievements.push(...arr));
+
+            allAchievements.forEach(ach => {
+                const isUnlocked = unlockedAchievements[ach.id];
+                const div = document.createElement('div');
+                div.className = `achievement-item ${isUnlocked ? 'unlocked' : 'locked'}`;
+                div.innerHTML = `
+                    <div class="achievement-icon">${ach.icon}</div>
+                    <div class="achievement-info">
+                        <div class="achievement-name">${ach.name}</div>
+                        <div class="achievement-desc">${ach.desc}</div>
+                    </div>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        // Achievement panel toggle
+        document.getElementById('achievementsBtn').addEventListener('click', () => {
+            const panel = document.getElementById('achievementsPanel');
+            panel.classList.toggle('show');
+            if (panel.classList.contains('show')) {
+                renderAchievements();
+            }
+        });
+
+        // Close panel when clicking outside
+        document.addEventListener('click', (e) => {
+            const panel = document.getElementById('achievementsPanel');
+            const btn = document.getElementById('achievementsBtn');
+            if (!panel.contains(e.target) && !btn.contains(e.target)) {
+                panel.classList.remove('show');
+            }
         });
 
         // Difficulty settings
@@ -748,6 +1037,12 @@
             // Update UI
             document.getElementById('health').textContent = Math.round(game.player.health) + ' / ' + game.player.maxHealth;
             document.getElementById('ammo').textContent = game.player.ammo;
+
+            // Check "start" achievement
+            const startAchievements = checkAchievement(difficulty, 0, false);
+            startAchievements.forEach(ach => {
+                showAchievementNotification(ach);
+            });
 
             // Initialize the game with enemies and terrain
             initializeGame();
@@ -1453,6 +1748,15 @@
 
                         if (game.player.health <= 0) {
                             game.player.running = false;
+
+                            // Check achievements
+                            const noDamageTaken = game.player.health === game.player.maxHealth;
+                            const newAchievements = checkAchievement(currentDifficulty, game.player.kills, noDamageTaken);
+
+                            // Show notifications for new achievements
+                            newAchievements.forEach(ach => {
+                                setTimeout(() => showAchievementNotification(ach), 500);
+                            });
 
                             // Show death screen with kill count and difficulty
                             document.getElementById('deathKills').textContent = 'Tanks Destroyed: ' + game.player.kills;
