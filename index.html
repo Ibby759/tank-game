@@ -262,6 +262,96 @@
             background: rgba(255, 68, 68, 0.2);
             box-shadow: 0 0 40px #ff4444;
         }
+
+        /* DEATH SCREEN */
+        .death-screen {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.95);
+            border: 4px solid #ff4444;
+            padding: 60px;
+            text-align: center;
+            display: none;
+            z-index: 150;
+            box-shadow: 0 0 50px rgba(255, 68, 68, 0.5);
+            border-radius: 10px;
+            max-width: 500px;
+        }
+
+        .death-screen.show { display: block; }
+
+        .death-screen h1 {
+            font-size: 64px;
+            color: #ff4444;
+            text-shadow: 0 0 30px #ff4444;
+            margin-bottom: 30px;
+            font-weight: bold;
+        }
+
+        .death-screen .kills-display {
+            font-size: 32px;
+            color: #00ff88;
+            margin-bottom: 20px;
+            text-shadow: 0 0 15px #00ff88;
+        }
+
+        .death-screen .difficulty-display {
+            font-size: 20px;
+            color: #ffff00;
+            margin-bottom: 40px;
+            text-shadow: 0 0 10px #ffff00;
+        }
+
+        .death-screen .button-group {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .death-btn {
+            padding: 20px 45px;
+            font-size: 22px;
+            font-weight: bold;
+            border: 3px solid;
+            background: rgba(0, 0, 0, 0.8);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: 0 0 20px;
+            pointer-events: all;
+            border-radius: 5px;
+        }
+
+        .death-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 40px;
+        }
+
+        .death-btn.respawn {
+            color: #00ff88;
+            border-color: #00ff88;
+            box-shadow: 0 0 20px #00ff88;
+        }
+
+        .death-btn.respawn:hover {
+            background: rgba(0, 255, 136, 0.2);
+            box-shadow: 0 0 40px #00ff88;
+        }
+
+        .death-btn.home {
+            color: #ffff00;
+            border-color: #ffff00;
+            box-shadow: 0 0 20px #ffff00;
+        }
+
+        .death-btn.home:hover {
+            background: rgba(255, 255, 0, 0.2);
+            box-shadow: 0 0 40px #ffff00;
+        }
     </style>
 </head>
 <body>
@@ -315,7 +405,17 @@
                 Destroy all tanks!
             </div>
 
-            <div class="game-over" id="gameOver">
+            <div class="death-screen" id="deathScreen">
+                <h1>💀 YOU DIED 💀</h1>
+                <div class="kills-display" id="deathKills">Tanks Destroyed: 0</div>
+                <div class="difficulty-display" id="difficultyDisplay">Difficulty: HARD</div>
+                <div class="button-group">
+                    <button class="death-btn respawn" id="respawnBtn">RESPAWN</button>
+                    <button class="death-btn home" id="homeBtn">HOME</button>
+                </div>
+            </div>
+
+            <div class="game-over" id="gameOver" style="display: none;">
                 <h1>YOU DIED</h1>
                 <p id="finalKills">Tanks Destroyed: 0</p>
                 <button id="playAgainBtn">PLAY AGAIN</button>
@@ -495,7 +595,78 @@
             applyDifficulty('hard');
         });
 
-        // Play Again button
+        // Respawn function - restart in same difficulty
+        function respawn() {
+            // Reset player
+            game.player.x = 0;
+            game.player.y = 0;
+            game.player.health = game.player.maxHealth;
+            game.player.ammo = game.player.maxAmmo;
+            game.player.angle = 0;
+            game.player.turretAngle = 0;
+            game.player.targetTurretAngle = 0;
+            game.player.kills = 0;
+            game.player.running = true;
+            game.player.lastShotTime = 0;
+
+            // Reset game state
+            game.enemies = [];
+            game.bullets = [];
+            game.particles = [];
+            game.terrain = [];
+            game.screenShake = 0;
+            game.screenFlash = 0;
+
+            // Reset timers
+            shootDelay = 0;
+            reloadTimer = 0;
+            reloadCooldown = 0;
+
+            // Spawn initial enemies
+            const settings = game.difficultySettings;
+            for (let i = 0; i < settings.initialEnemies; i++) {
+                game.enemies.push(new Enemy());
+            }
+
+            // Regenerate terrain
+            generateTerrain();
+            lastTerrainX = Math.floor(game.player.x / 600);
+            lastTerrainY = Math.floor(game.player.y / 600);
+
+            // Update UI
+            document.getElementById('health').textContent = Math.round(game.player.health) + ' / ' + game.player.maxHealth;
+            document.getElementById('ammo').textContent = game.player.ammo;
+            document.getElementById('kills').textContent = 'KILLS: ' + game.player.kills;
+            document.getElementById('reloadTimer').textContent = 'READY';
+            document.getElementById('reloadTimer').style.color = '#ffff00';
+
+            // Hide death screen
+            document.getElementById('deathScreen').classList.remove('show');
+        }
+
+        // Go back to home screen
+        function goToHome() {
+            // Reset game state
+            currentDifficulty = null;
+            game.player.running = true;
+            game.player.kills = 0;
+            game.enemies = [];
+            game.bullets = [];
+            game.particles = [];
+            game.terrain = [];
+
+            // Show home screen
+            document.getElementById('homeScreen').style.display = 'flex';
+            document.getElementById('deathScreen').classList.remove('show');
+        }
+
+        // Respawn button
+        document.getElementById('respawnBtn').addEventListener('click', respawn);
+
+        // Home button
+        document.getElementById('homeBtn').addEventListener('click', goToHome);
+
+        // Play Again button (legacy)
         document.getElementById('playAgainBtn').addEventListener('click', () => {
             location.reload();
         });
@@ -1108,8 +1279,15 @@
 
                         if (game.player.health <= 0) {
                             game.player.running = false;
-                            document.getElementById('finalKills').textContent = 'Tanks Destroyed: ' + game.player.kills;
-                            document.getElementById('gameOver').classList.add('show');
+
+                            // Show death screen with kill count and difficulty
+                            document.getElementById('deathKills').textContent = 'Tanks Destroyed: ' + game.player.kills;
+
+                            // Format difficulty name
+                            const diffName = currentDifficulty ? currentDifficulty.charAt(0).toUpperCase() + currentDifficulty.slice(1) : 'HARD';
+                            document.getElementById('difficultyDisplay').textContent = 'Difficulty: ' + diffName;
+
+                            document.getElementById('deathScreen').classList.add('show');
                         }
                     }
                 }
