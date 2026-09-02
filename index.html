@@ -333,6 +333,45 @@
             font-weight: 600;
         }
 
+        /* FULLSCREEN BUTTON */
+        .fullscreen-btn {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            width: 40px;
+            height: 40px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 4px;
+            color: #00ff88;
+            font-size: 20px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            z-index: 42;
+            will-change: transform;
+        }
+
+        .fullscreen-btn:hover {
+            background: rgba(0, 0, 0, 0.9);
+            border-color: #00ff88;
+            box-shadow: 0 0 12px rgba(0, 255, 136, 0.3);
+            transform: scale(1.1);
+        }
+
+        .fullscreen-btn:active {
+            transform: scale(0.95);
+        }
+
+        .fullscreen-btn.in-game {
+            top: auto;
+            bottom: 30px;
+            right: 250px;
+        }
+
         /* MINIMAP */
         .minimap {
             position: absolute;
@@ -714,6 +753,9 @@
                 <!-- Achievements Button -->
                 <button class="achievement-unlock-btn" id="achievementsBtn" title="View Achievements">🏆</button>
 
+                <!-- Fullscreen Button -->
+                <button class="fullscreen-btn" id="fullscreenBtn" title="Toggle Fullscreen">⛶</button>
+
                 <!-- Achievements Panel -->
                 <div class="achievements-panel" id="achievementsPanel">
                     <div class="achievements-title">🏆 ACHIEVEMENTS 🏆</div>
@@ -745,6 +787,9 @@
                     <div id="reloadTimer" style="color: #ffff00;">READY</div>
                 </div>
             </div>
+
+            <!-- In-game Fullscreen Button -->
+            <button class="fullscreen-btn in-game" id="fullscreenBtnGame" title="Toggle Fullscreen">⛶</button>
 
             <div class="instruction">
                 <strong>HOW TO PLAY:</strong><br><br>
@@ -900,6 +945,65 @@
             if (!panel.contains(e.target) && !btn.contains(e.target)) {
                 panel.classList.remove('show');
             }
+        });
+
+        // FULLSCREEN FUNCTIONALITY
+        function toggleFullscreen() {
+            const elem = document.documentElement;
+
+            if (!document.fullscreenElement) {
+                // Enter fullscreen
+                if (elem.requestFullscreen) {
+                    elem.requestFullscreen();
+                } else if (elem.webkitRequestFullscreen) {
+                    elem.webkitRequestFullscreen();
+                } else if (elem.mozRequestFullScreen) {
+                    elem.mozRequestFullScreen();
+                } else if (elem.msRequestFullscreen) {
+                    elem.msRequestFullscreen();
+                }
+            } else {
+                // Exit fullscreen
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                    document.mozCancelFullScreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+            }
+        }
+
+        // Handle fullscreen buttons
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        const fullscreenBtnGame = document.getElementById('fullscreenBtnGame');
+
+        fullscreenBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleFullscreen();
+        });
+
+        fullscreenBtnGame.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleFullscreen();
+        });
+
+        // Update canvas on fullscreen change
+        document.addEventListener('fullscreenchange', () => {
+            setTimeout(() => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }, 100);
+        });
+
+        // Also handle webkit fullscreen change
+        document.addEventListener('webkitfullscreenchange', () => {
+            setTimeout(() => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }, 100);
         });
 
         // Difficulty settings
