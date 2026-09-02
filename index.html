@@ -172,12 +172,113 @@
         }
 
         .game-over.show { display: block; }
+
+        /* HOME SCREEN */
+        .home-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #0f0f20 0%, #1a1a2e 50%, #0f0f20 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+            pointer-events: all;
+        }
+
+        .home-screen h1 {
+            font-size: 72px;
+            color: #00ff88;
+            text-shadow: 0 0 30px #00ff88;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .home-screen p {
+            font-size: 24px;
+            color: #88ff88;
+            margin-bottom: 50px;
+            text-shadow: 0 0 15px #00ff88;
+        }
+
+        .difficulty-buttons {
+            display: flex;
+            gap: 40px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .difficulty-btn {
+            padding: 25px 50px;
+            font-size: 24px;
+            font-weight: bold;
+            border: 3px solid;
+            background: rgba(0, 0, 0, 0.7);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: 0 0 20px;
+            pointer-events: all;
+        }
+
+        .difficulty-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 40px;
+        }
+
+        .difficulty-btn.easy {
+            color: #00ff00;
+            border-color: #00ff00;
+            box-shadow: 0 0 20px #00ff00;
+        }
+
+        .difficulty-btn.easy:hover {
+            background: rgba(0, 255, 0, 0.2);
+            box-shadow: 0 0 40px #00ff00;
+        }
+
+        .difficulty-btn.medium {
+            color: #ffff00;
+            border-color: #ffff00;
+            box-shadow: 0 0 20px #ffff00;
+        }
+
+        .difficulty-btn.medium:hover {
+            background: rgba(255, 255, 0, 0.2);
+            box-shadow: 0 0 40px #ffff00;
+        }
+
+        .difficulty-btn.hard {
+            color: #ff4444;
+            border-color: #ff4444;
+            box-shadow: 0 0 20px #ff4444;
+        }
+
+        .difficulty-btn.hard:hover {
+            background: rgba(255, 68, 68, 0.2);
+            box-shadow: 0 0 40px #ff4444;
+        }
     </style>
 </head>
 <body>
     <div id="game">
         <canvas id="canvas"></canvas>
         <div class="ui">
+            <!-- HOME SCREEN -->
+            <div class="home-screen" id="homeScreen">
+                <h1>⚔️ TANK BATTLE ⚔️</h1>
+                <p>Select Difficulty</p>
+                <div class="difficulty-buttons">
+                    <button class="difficulty-btn easy" id="easyBtn">EASY</button>
+                    <button class="difficulty-btn medium" id="mediumBtn">MEDIUM</button>
+                    <button class="difficulty-btn hard" id="hardBtn">HARD</button>
+                </div>
+            </div>
+
             <div class="crosshair"></div>
 
             <div class="top-info">
@@ -237,6 +338,57 @@
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
         });
+
+        // Difficulty settings
+        const difficultySettings = {
+            easy: {
+                playerHealth: 120,
+                playerMaxHealth: 120,
+                playerAmmo: 40,
+                playerMaxAmmo: 40,
+                enemyHealth: 40,
+                enemyMaxHealth: 40,
+                enemySpawnRate: 0.05,
+                maxEnemies: 1,
+                enemyShootCooldownRed: 80,
+                enemyShootCooldownBlue: 50,
+                enemyBulletDamageRed: 10,
+                enemyBulletDamageBlue: 15,
+                initialEnemies: 1
+            },
+            medium: {
+                playerHealth: 100,
+                playerMaxHealth: 100,
+                playerAmmo: 30,
+                playerMaxAmmo: 30,
+                enemyHealth: 50,
+                enemyMaxHealth: 50,
+                enemySpawnRate: 0.10,
+                maxEnemies: 2,
+                enemyShootCooldownRed: 60,
+                enemyShootCooldownBlue: 35,
+                enemyBulletDamageRed: 20,
+                enemyBulletDamageBlue: 28,
+                initialEnemies: 2
+            },
+            hard: {
+                playerHealth: 80,
+                playerMaxHealth: 80,
+                playerAmmo: 20,
+                playerMaxAmmo: 20,
+                enemyHealth: 60,
+                enemyMaxHealth: 60,
+                enemySpawnRate: 0.15,
+                maxEnemies: 3,
+                enemyShootCooldownRed: 40,
+                enemyShootCooldownBlue: 20,
+                enemyBulletDamageRed: 25,
+                enemyBulletDamageBlue: 32,
+                initialEnemies: 3
+            }
+        };
+
+        let currentDifficulty = null;
 
         // Game state
         const game = {
@@ -303,6 +455,44 @@
         });
         document.addEventListener('mouseup', () => {
             mouseDown = false;
+        });
+
+        // Apply difficulty settings
+        function applyDifficulty(difficulty) {
+            currentDifficulty = difficulty;
+            const settings = difficultySettings[difficulty];
+
+            // Update player stats
+            game.player.health = settings.playerHealth;
+            game.player.maxHealth = settings.playerMaxHealth;
+            game.player.ammo = settings.playerAmmo;
+            game.player.maxAmmo = settings.playerMaxAmmo;
+
+            // Store settings for enemy spawning
+            game.difficultySettings = settings;
+
+            // Update UI
+            document.getElementById('health').textContent = Math.round(game.player.health) + ' / ' + game.player.maxHealth;
+            document.getElementById('ammo').textContent = game.player.ammo;
+
+            // Initialize the game with enemies and terrain
+            initializeGame();
+
+            // Hide home screen and start game
+            document.getElementById('homeScreen').style.display = 'none';
+        }
+
+        // Difficulty button handlers
+        document.getElementById('easyBtn').addEventListener('click', () => {
+            applyDifficulty('easy');
+        });
+
+        document.getElementById('mediumBtn').addEventListener('click', () => {
+            applyDifficulty('medium');
+        });
+
+        document.getElementById('hardBtn').addEventListener('click', () => {
+            applyDifficulty('hard');
         });
 
         // Play Again button
@@ -670,8 +860,14 @@
                 this.x = game.player.x + Math.cos(angle) * dist;
                 this.y = game.player.y + Math.sin(angle) * dist;
                 this.size = 40;
-                this.health = 60;
-                this.maxHealth = 60;
+
+                // Get settings from current difficulty or use hard mode as default
+                const settings = game.difficultySettings || difficultySettings.hard;
+                this.health = settings.enemyMaxHealth;
+                this.maxHealth = settings.enemyMaxHealth;
+                this.bulletDamageRed = settings.enemyBulletDamageRed;
+                this.bulletDamageBlue = settings.enemyBulletDamageBlue;
+
                 this.speed = 1.0 + Math.random() * 0.5;
                 this.angle = Math.random() * Math.PI * 2;
                 this.turretAngle = this.angle;
@@ -681,7 +877,7 @@
                 // 50% chance to be blue (fast-shooting variant)
                 this.isBlue = Math.random() < 0.5;
                 this.color = this.isBlue ? '#4488ff' : '#ff4444';
-                this.shootCooldown = this.isBlue ? 20 : 40; // HARD MODE: Enemies shoot MUCH faster!
+                this.shootCooldown = this.isBlue ? settings.enemyShootCooldownBlue : settings.enemyShootCooldownRed;
             }
 
             update() {
@@ -714,7 +910,7 @@
                         y: this.y,
                         vx: Math.cos(this.turretAngle) * 4,
                         vy: Math.sin(this.turretAngle) * 4,
-                        damage: this.isBlue ? 32 : 25,
+                        damage: this.isBlue ? this.bulletDamageBlue : this.bulletDamageRed,
                         isPlayerBullet: false,
                         isBlue: this.isBlue,
                         size: this.isBlue ? 8 : 5
@@ -930,10 +1126,13 @@
             // Regenerate terrain
             generateTerrain();
 
-            // Spawn enemies (HARD MODE - more frequent!)
-            const liveEnemies = game.enemies.filter(e => e.health > 0);
-            if (liveEnemies.length < 3 && Math.random() < 0.15) {
-                game.enemies.push(new Enemy());
+            // Spawn enemies (difficulty-based)
+            if (currentDifficulty) {
+                const settings = game.difficultySettings;
+                const liveEnemies = game.enemies.filter(e => e.health > 0);
+                if (liveEnemies.length < settings.maxEnemies && Math.random() < settings.enemySpawnRate) {
+                    game.enemies.push(new Enemy());
+                }
             }
 
             // Remove far away enemies to save performance
@@ -1434,12 +1633,22 @@
             }
         }
 
-        // Spawn initial enemies (HARD MODE)
-        for (let i = 0; i < 3; i++) {
-            game.enemies.push(new Enemy());
+        // Initialize game
+        function initializeGame() {
+            if (!currentDifficulty) return; // Game hasn't started yet
+
+            const settings = game.difficultySettings;
+
+            // Spawn initial enemies based on difficulty
+            for (let i = 0; i < settings.initialEnemies; i++) {
+                game.enemies.push(new Enemy());
+            }
+
+            generateTerrain();
         }
 
-        generateTerrain();
+        // Don't spawn enemies until difficulty is selected
+        // generateTerrain() will be called after difficulty is chosen
 
         let frameCount = 0;
         function gameLoop() {

@@ -5,7 +5,10 @@
       "PowerShell(git config --global user.name)",
       "PowerShell(git config --global user.email)",
       "PowerShell(gh auth status 2>&1)",
-      "PowerShell(gh repo list Ibby759 --limit 20)"
+      "PowerShell(gh repo list Ibby759 --limit 20)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)"
     ]
   }
 }
