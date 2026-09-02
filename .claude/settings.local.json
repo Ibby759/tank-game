@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(cp \"C:\\\\Users\\\\Ma\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--claude-work\\\\a9173fce-6e7c-4718-866d-3891c80f6a59\\\\scratchpad\\\\tank-game-simple.html\" \"C:\\\\claude work\\\\index.html\")",
+      "PowerShell(git config --global user.name)",
+      "PowerShell(git config --global user.email)",
+      "PowerShell(gh auth status 2>&1)",
+      "PowerShell(gh repo list Ibby759 --limit 20)"
+    ]
+  }
+}
